@@ -1,2 +1,6 @@
 schema.json~
 *~
+*config.json
+/CalVAD-HPMS-Extractor-0.001.tar.gz
+.build
+CalVAD-HPMS-Extractor-*

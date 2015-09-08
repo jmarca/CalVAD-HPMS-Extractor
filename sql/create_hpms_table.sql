@@ -11,16 +11,22 @@ SET client_min_messages = warning;
 
 SET search_path = public, pg_catalog;
 
+-- if you want to delete existing, do this:
+-- ALTER TABLE ONLY public.hpms DROP CONSTRAINT hpms_pkey;
+-- ALTER TABLE public.hpms ALTER COLUMN id DROP DEFAULT;
+-- DROP SEQUENCE public.hpms_id_seq;
+-- DROP TABLE public.hpms;
+-- SET search_path = public, pg_catalog;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: hpms; Type: TABLE; Schema: public; Owner: slash; Tablespace: 
+-- Name: hpms; Type: TABLE; Schema: public; Owner: slash; Tablespace:
 --
 
 CREATE TABLE hpms (
-    year text,
     year_record double precision,
     state_code double precision,
     route_id text,
@@ -54,8 +60,6 @@ CREATE TABLE hpms (
     truck double precision,
     urban_code double precision,
     alternative_route_name_txt text,
-    alternative_route_name boolean,
-    year_last_improv boolean,
     facility_type_cmt text,
     f_system_cmt text,
     iri_cmt text,
@@ -73,13 +77,49 @@ CREATE TABLE hpms (
     through_lanes_cmt text,
     access_control_cmt text,
     dir_factor_cmt text,
-    year_last_improv_cmt text
+    year_last_improv_cmt text,
+    id integer NOT NULL
 );
 
 
 ALTER TABLE hpms OWNER TO slash;
 
 --
--- PostgreSQL database dump complete
+-- Name: hpms_id_seq; Type: SEQUENCE; Schema: public; Owner: slash
 --
 
+CREATE SEQUENCE hpms_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE hpms_id_seq OWNER TO slash;
+
+--
+-- Name: hpms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: slash
+--
+
+ALTER SEQUENCE hpms_id_seq OWNED BY hpms.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: slash
+--
+
+ALTER TABLE ONLY hpms ALTER COLUMN id SET DEFAULT nextval('hpms_id_seq'::regclass);
+
+
+--
+-- Name: hpms_pkey; Type: CONSTRAINT; Schema: public; Owner: slash; Tablespace:
+--
+
+ALTER TABLE ONLY hpms
+    ADD CONSTRAINT hpms_pkey PRIMARY KEY (id);
+
+
+--
+-- PostgreSQL database dump complete
+--

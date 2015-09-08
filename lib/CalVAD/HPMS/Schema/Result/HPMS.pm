@@ -23,11 +23,6 @@ __PACKAGE__->table("hpms");
 
 =head1 ACCESSORS
 
-=head2 year
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 year_record
 
   data_type: 'double precision'
@@ -193,16 +188,6 @@ __PACKAGE__->table("hpms");
   data_type: 'text'
   is_nullable: 1
 
-=head2 alternative_route_name
-
-  data_type: 'boolean'
-  is_nullable: 1
-
-=head2 year_last_improv
-
-  data_type: 'boolean'
-  is_nullable: 1
-
 =head2 facility_type_cmt
 
   data_type: 'text'
@@ -293,11 +278,16 @@ __PACKAGE__->table("hpms");
   data_type: 'text'
   is_nullable: 1
 
+=head2 id
+
+  data_type: 'integer'
+  is_auto_increment: 1
+  is_nullable: 0
+  sequence: 'hpms_id_seq'
+
 =cut
 
 __PACKAGE__->add_columns(
-  "year",
-  { data_type => "text", is_nullable => 1 },
   "year_record",
   { data_type => "double precision", is_nullable => 1 },
   "state_code",
@@ -364,10 +354,6 @@ __PACKAGE__->add_columns(
   { data_type => "double precision", is_nullable => 1 },
   "alternative_route_name_txt",
   { data_type => "text", is_nullable => 1 },
-  "alternative_route_name",
-  { data_type => "boolean", is_nullable => 1 },
-  "year_last_improv",
-  { data_type => "boolean", is_nullable => 1 },
   "facility_type_cmt",
   { data_type => "text", is_nullable => 1 },
   "f_system_cmt",
@@ -404,11 +390,30 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "year_last_improv_cmt",
   { data_type => "text", is_nullable => 1 },
+  "id",
+  {
+    data_type         => "integer",
+    is_auto_increment => 1,
+    is_nullable       => 0,
+    sequence          => "hpms_id_seq",
+  },
 );
 
+=head1 PRIMARY KEY
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-08-10 23:31:02
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:t8vit0NwFx59xRlgeTZMOQ
+=over 4
+
+=item * L</id>
+
+=back
+
+=cut
+
+__PACKAGE__->set_primary_key("id");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-08-11 11:48:03
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ai8IQnw5RxM8yZUP5B7K3Q
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

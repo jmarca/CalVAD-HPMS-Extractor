@@ -140,6 +140,69 @@ for my $args ( $postgis_args, $postgis_topology_args, $db_deploy_args,
       or croak "system @sysargs failed: $?";
 }
 
+# make a parser of data
+my $extractor  = CalVAD::HPMS::Extractor->new(
+
+    # first the sql role
+    'host_psql'     => $host,
+    'port_psql'     => $port,
+    'dbname_psql'   => $dbname,
+    'username_psql' => $user,
+
+);
+
+isnt($extractor, undef, 'object creation should work with all required fields');
+isa_ok($extractor,'CalVAD::HPMS::Extractor','extractor is an extractor');
+
+my $connect;
+eval {
+  $connect = $extractor->_connection_psql;
+};
+if($@) {
+  carp $@;
+}
+
+isnt($connect, undef, 'db connection should be possible');
+isa_ok($connect,'CalVAD::HPMS::Schema','db connection is right class');
+
+# test simple query works
+
+my $rs = $extractor->resultset('HPMS');
+isa_ok($rs,'DBIx::Class::ResultSet','got a result set');
+my @all = $rs->all();
+is(@all,93029,'got everything from test database');
+
+
+
+# use the extractor
+$extractor->county(1);
+
+my $max = 20;
+
+$extractor->extract_out(sub{
+    ($rs) = @_;
+
+    my $cursor = $rs->cursor;
+
+    while ($max && (my @vals = $cursor->next)) {
+        $max--;
+        my $val_or_blank = [map { $_ || ''} @vals];
+        diag (join q/,/,@{$val_or_blank} );
+    }
+                        });
+is( $max, 10 );
+
+my $newpage = $rs->page(2);
+my $cursor = $newpage->cursor;
+$max = 20;
+while ($max && (my @vals = $cursor->next)) {
+    $max--;
+    my $val_or_blank = [map { $_ || ''} @vals];
+    diag (join q/,/,@{$val_or_blank} );
+}
+is( $max, 10 );
+
+
 
 done_testing;
 

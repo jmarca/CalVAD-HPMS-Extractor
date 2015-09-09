@@ -19,7 +19,7 @@ class Extractor using Moose : ro {
         'isa'   => 'ArrayRef',
         default => sub {
             [
-             qw(id year_record  locality  county  fips  link_desc  from_name  to_name  lrs_id is_metric begin_lrs end_lrs inter_route_number route_qualifier route_number section_length )
+             qw(id year_record route_number  route_qualifier route_id alternative_route_name_txt urban_code_cmt  county_code    county_code_cmt  begin_point end_point section_length f_system_cmt nhs_cmt)
             ];
         },
         );
@@ -34,14 +34,15 @@ class Extractor using Moose : ro {
     method _build__connection_psql {
 
         # process my passed options for psql attributes
-        my ( $host, $port, $dbname, $username, $password ) =
+        my ( $host, $port, $dbname, $username ) =
           map { $self->$_ }
           map { join q{_}, $_, $param }
-          qw/ host port dbname username password /;
-        my $vdb = HPMS::Schema->connect(
+          qw/ host port dbname username /;
+        my $pass;
+        my $vdb = CalVAD::HPMS::Schema->connect(
             "dbi:Pg:dbname=$dbname;host=$host;port=$port",
-            $username, $password, { on_connect_do =>
-                        [ 'SET search_path TO hpms, public' ],
+            $username, $pass, { on_connect_do =>
+                        [ 'SET search_path TO public' ], ## no hpms schema now
                     },
         );
         return $vdb;
@@ -51,6 +52,67 @@ class Extractor using Moose : ro {
         'connection_type'       => 'CalVAD::HPMS::Schema',
         'connection_delegation' => qr/^(.*)/sxm,
     };
+
+    method rs_query {
+
+        my $rs = $self->resultset('HPMS')->search(
+                                                      {},
+            {
+                'select' => $self->hpms_columns,
+
+                ## 'join' => [qw/ hpms_link_geoms hpms_failed_geom max_len /],
+            }
+        );
+
+        return $rs;
+    }
+
+    method extract_out  (CodeRef $callback)  {
+        my $data_rs    = $self->rs_query();
+        my $conditions = {
+            # 'hpms_link_geoms'   => undef,
+            # 'hpms_failed_geom' => undef,
+            #'locality'         => { '!=', 'CO' },
+
+            'alternative_route_name_txt' => { '!~*', 'GROUP' },
+
+            # 'from_name' => {'!=', undef},
+            # 'to_name' => {'!=', undef},
+
+        };
+        my $options = {
+            rows     => 10,           # number of results per page
+            order_by => 'random()',
+        };
+        if($self->retry){
+          delete $conditions->{'hpms_failed_geom'};
+        }
+        if ( $self->county ) {
+            $conditions->{'alternative_route_name_txt'} = {'!~*','shwy'};
+        }
+        if ( $self->shwy ) {
+            $conditions->{'alternative_route_name_txt'} = {'~*','shwy'};
+            #$options->{'+select'}='max_len.len';
+            #$options->{'+as'}='max_length';
+            #$options->{'join'} = 'max_len';
+        }
+        if ( $self->shwy && $self->osmref ) {
+            $conditions->{'me.route_number'} = {'!=',''};
+            # delete $conditions->{'locality'};
+            # $options->{'+select'}='max_len.len';
+            # $options->{'+as'}='max_length';
+            # $options->{'join'} = 'max_len';
+        }
+        # carp Dumper $conditions;
+        # carp Dumper $options;
+
+        my $rs = $data_rs->search( $conditions, $options, );
+        if ($rs) {
+            $callback->($rs);
+        }
+        return $rs;
+
+    }
 
 
 }

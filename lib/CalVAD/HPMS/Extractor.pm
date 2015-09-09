@@ -84,7 +84,7 @@ class Extractor using Moose : ro {
             rows     => 10,           # number of results per page
             order_by => 'random()',
         };
-        if($self->retry){
+        if($self->retry && $conditions->{'hpms_failed_geom'} ){
           delete $conditions->{'hpms_failed_geom'};
         }
         if ( $self->county ) {

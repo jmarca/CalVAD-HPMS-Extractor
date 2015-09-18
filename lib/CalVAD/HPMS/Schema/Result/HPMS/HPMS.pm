@@ -1,12 +1,12 @@
 use utf8;
-package CalVAD::HPMS::Schema::Result::HPMS;
+package CalVAD::HPMS::Schema::Result::HPMS::HPMS;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CalVAD::HPMS::Schema::Result::HPMS
+CalVAD::HPMS::Schema::Result::HPMS::HPMS
 
 =cut
 
@@ -283,7 +283,7 @@ __PACKAGE__->table("hpms");
   data_type: 'integer'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'hpms_id_seq'
+  sequence: 'hpms.hpms_id_seq'
 
 =cut
 
@@ -395,7 +395,7 @@ __PACKAGE__->add_columns(
     data_type         => "integer",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "hpms_id_seq",
+    sequence          => "hpms.hpms_id_seq",
   },
 );
 
@@ -411,9 +411,41 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 RELATIONS
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-08-11 11:48:03
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Ai8IQnw5RxM8yZUP5B7K3Q
+=head2 hpms_failed_geom
+
+Type: might_have
+
+Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSFailedGeom>
+
+=cut
+
+__PACKAGE__->might_have(
+  "hpms_failed_geom",
+  "CalVAD::HPMS::Schema::Result::HPMS::HPMSFailedGeom",
+  { "foreign.hpms_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 hpms_link_geoms
+
+Type: has_many
+
+Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom>
+
+=cut
+
+__PACKAGE__->has_many(
+  "hpms_link_geoms",
+  "CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom",
+  { "foreign.hpms_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-17 18:41:08
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s9bFpkasHvn4JCMWnctVmQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

@@ -19,14 +19,12 @@ class Extractor using Moose : ro {
         'isa'   => 'ArrayRef',
         default => sub {
             [
-             qw(id year_record route_number  route_qualifier route_id alternative_route_name_txt urban_code_cmt  county_code    county_code_cmt  begin_point end_point section_length f_system_cmt nhs_cmt)
+             qw(id year_record route_number  route_qualifier route_id alternative_route_name_txt urban_code_cmt  county_code    county_code_cmt  begin_point end_point section_length f_system_cmt nhs_cmt aadt aadt_cmt)
             ];
         },
         );
 
-    has 'county' => (is => 'rw', isa => 'Bool', 'default'=>0);
     has 'shwy' => (is => 'rw', isa => 'Bool', 'default'=>0);
-    has 'osmref' => (is => 'rw', isa => 'Bool', 'default'=>0);
     has 'retry' => (is => 'rw', isa => 'Bool', 'default'=>0);
 
 
@@ -87,9 +85,10 @@ class Extractor using Moose : ro {
         if($self->retry && $conditions->{'hpms_failed_geom'} ){
           delete $conditions->{'hpms_failed_geom'};
         }
-        if ( $self->county ) {
-            $conditions->{'alternative_route_name_txt'} = {'!~*','shwy'};
+        if ( ! $self->shwy ) {
+            $conditions->{'alternative_route_name_txt'} = {'!=',undef};
         }
+        # not being used at the moment
         if ( $self->shwy ) {
             $conditions->{'alternative_route_name_txt'} = {'~*','shwy'};
             #$options->{'+select'}='max_len.len';
@@ -110,7 +109,7 @@ class Extractor using Moose : ro {
         if ($rs) {
             $callback->($rs);
         }
-        return $rs;
+        return;
 
     }
 

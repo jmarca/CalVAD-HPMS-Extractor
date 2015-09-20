@@ -11,6 +11,7 @@ class Extractor using Moose : ro {
     use Data::Dumper;
     use English qw(-no_match_vars);
     use version; our $VERSION = qv('0.1.0');
+    use Try::Tiny;
 
     use CalVAD::HPMS::Schema;
 
@@ -53,22 +54,79 @@ class Extractor using Moose : ro {
 
     method rs_query {
 
-        my $rs = $self->resultset('HPMS')->search(
+        my $rs = $self->resultset('Hpms::HPMS')->search(
                                                       {},
             {
                 'select' => $self->hpms_columns,
 
-                ## 'join' => [qw/ hpms_link_geoms hpms_failed_geom max_len /],
+                'join' => [qw/ hpms_link_geoms hpms_failed_geom  /],
+                                ## max_len
             }
         );
 
         return $rs;
     }
 
+    method create_geometry (Num $hpmsid, Str $direction, Any $geom? ){
+        my $result = 0;
+        my $test_eval;
+        my $new_geom;
+        my $new_join;
+        if ($geom) {
+            # carp "saving geometry $hpmsid, $direction";
+            my $rs = $self->resultset('Hpms::HpmsGeom');
+            # carp Dumper $rs;
+            $test_eval = eval {
+                $new_geom = $rs->create(
+                    { 'geom' => $geom }
+
+                );
+            };
+            if ($EVAL_ERROR) {    # find or create failed
+                carp "can't create new geometry $EVAL_ERROR";
+                croak;
+            }
+
+            # join the geom and the hpms record
+            $test_eval = eval {
+                $new_join = $self->resultset('Hpms::HpmsLinkGeom')->create(
+                    {
+                        'geo_id'    => $new_geom->id(),
+                        'hpms_id'   => $hpmsid,
+                        'direction' => $direction,
+                    }
+
+                );
+            };
+            if ($EVAL_ERROR) {    # find or create failed
+                carp "can't create new join table entry $EVAL_ERROR";
+                croak;
+            }
+            $result = 1;
+        }else{
+            # carp "no geometry, creating an entry in the failed table for $hpmsid, $direction";
+            # no geometry to join, save to the failed table
+            # join the geom and the hpms record
+            $test_eval = eval {
+                $new_join = $self->resultset('Hpms::HpmsFailedGeom')->create(
+                    { 'hpms_id' => $hpmsid, }
+
+                );
+            };
+            if ($EVAL_ERROR) {    # find or create failed
+                carp
+                  "can't create new failed geom join table entry $EVAL_ERROR";
+                croak;
+            }
+            $result = -1;
+        }
+        return $result;
+    }
+
     method extract_out  (CodeRef $callback)  {
         my $data_rs    = $self->rs_query();
         my $conditions = {
-            # 'hpms_link_geoms'   => undef,
+            #'hpms_link_geoms'   => undef,
             # 'hpms_failed_geom' => undef,
             #'locality'         => { '!=', 'CO' },
 
@@ -83,7 +141,7 @@ class Extractor using Moose : ro {
             order_by => 'random()',
         };
         if($self->retry && $conditions->{'hpms_failed_geom'} ){
-          delete $conditions->{'hpms_failed_geom'};
+            delete $conditions->{'hpms_failed_geom'};
         }
         if ( ! $self->shwy ) {
             $conditions->{'alternative_route_name_txt'} = {'!=',undef};

@@ -8,15 +8,13 @@
      "dump_directory": "./lib",
      "db_schema": ["hpms"],
      "debug":false,
+     "qualify_objects":true,
      "moniker_parts":  ["schema", "name"],
      "moniker_part_separator":  "::",
      "constraint": "hpms",
      "moniker_map" : {
          "hpms":{
-             "hpms" : "HPMS::HPMS",
-             "hpms_geom":"HPMS::HPMSGeom",
-             "hpms_link_geom":"HPMS::HPMSLinkGeom",
-             "hpms_failed_geom":"HPMS::HPMSFailedGeom"
+             "hpms" : "Hpms::HPMS"
          }
 
      },

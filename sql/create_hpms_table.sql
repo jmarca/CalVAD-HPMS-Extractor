@@ -9,21 +9,16 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-SET search_path = public, pg_catalog;
+CREATE schema hpms;
 
--- if you want to delete existing, do this:
--- ALTER TABLE ONLY public.hpms DROP CONSTRAINT hpms_pkey;
--- ALTER TABLE public.hpms ALTER COLUMN id DROP DEFAULT;
--- DROP SEQUENCE public.hpms_id_seq;
--- DROP TABLE public.hpms;
--- SET search_path = public, pg_catalog;
+SET search_path = hpms, pg_catalog;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: hpms; Type: TABLE; Schema: public; Owner: slash; Tablespace:
+-- Name: hpms; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
 --
 
 CREATE TABLE hpms (
@@ -85,7 +80,51 @@ CREATE TABLE hpms (
 ALTER TABLE hpms OWNER TO slash;
 
 --
--- Name: hpms_id_seq; Type: SEQUENCE; Schema: public; Owner: slash
+-- Name: hpms_failed_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+--
+
+CREATE TABLE hpms_failed_geom (
+    hpms_id integer NOT NULL
+);
+
+
+ALTER TABLE hpms_failed_geom OWNER TO slash;
+
+--
+-- Name: hpms_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+--
+
+CREATE TABLE hpms_geom (
+    id integer NOT NULL,
+    geom public.geometry(LineString,4326)
+);
+
+
+ALTER TABLE hpms_geom OWNER TO slash;
+
+--
+-- Name: hpms_geom_id_seq; Type: SEQUENCE; Schema: hpms; Owner: slash
+--
+
+CREATE SEQUENCE hpms_geom_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE hpms_geom_id_seq OWNER TO slash;
+
+--
+-- Name: hpms_geom_id_seq; Type: SEQUENCE OWNED BY; Schema: hpms; Owner: slash
+--
+
+ALTER SEQUENCE hpms_geom_id_seq OWNED BY hpms_geom.id;
+
+
+--
+-- Name: hpms_id_seq; Type: SEQUENCE; Schema: hpms; Owner: slash
 --
 
 CREATE SEQUENCE hpms_id_seq
@@ -99,25 +138,93 @@ CREATE SEQUENCE hpms_id_seq
 ALTER TABLE hpms_id_seq OWNER TO slash;
 
 --
--- Name: hpms_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: slash
+-- Name: hpms_id_seq; Type: SEQUENCE OWNED BY; Schema: hpms; Owner: slash
 --
 
 ALTER SEQUENCE hpms_id_seq OWNED BY hpms.id;
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: slash
+-- Name: hpms_link_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+--
+
+CREATE TABLE hpms_link_geom (
+    geo_id integer NOT NULL,
+    hpms_id integer NOT NULL,
+    direction text
+);
+
+
+ALTER TABLE hpms_link_geom OWNER TO slash;
+
+--
+-- Name: id; Type: DEFAULT; Schema: hpms; Owner: slash
 --
 
 ALTER TABLE ONLY hpms ALTER COLUMN id SET DEFAULT nextval('hpms_id_seq'::regclass);
 
 
 --
--- Name: hpms_pkey; Type: CONSTRAINT; Schema: public; Owner: slash; Tablespace:
+-- Name: id; Type: DEFAULT; Schema: hpms; Owner: slash
+--
+
+ALTER TABLE ONLY hpms_geom ALTER COLUMN id SET DEFAULT nextval('hpms_geom_id_seq'::regclass);
+
+
+--
+-- Name: hpms_failed_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+--
+
+ALTER TABLE ONLY hpms_failed_geom
+    ADD CONSTRAINT hpms_failed_geom_pkey PRIMARY KEY (hpms_id);
+
+
+--
+-- Name: hpms_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+--
+
+ALTER TABLE ONLY hpms_geom
+    ADD CONSTRAINT hpms_geom_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: hpms_link_geom_hpms_id_direction_key; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+--
+
+ALTER TABLE ONLY hpms_link_geom
+    ADD CONSTRAINT hpms_link_geom_hpms_id_direction_key UNIQUE (hpms_id, direction);
+
+
+--
+-- Name: hpms_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
 --
 
 ALTER TABLE ONLY hpms
     ADD CONSTRAINT hpms_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: hpms_failed_geom_hpms_id_fkey; Type: FK CONSTRAINT; Schema: hpms; Owner: slash
+--
+
+ALTER TABLE ONLY hpms_failed_geom
+    ADD CONSTRAINT hpms_failed_geom_hpms_id_fkey FOREIGN KEY (hpms_id) REFERENCES hpms(id) ON DELETE CASCADE;
+
+
+--
+-- Name: hpms_link_geom_geo_id_fkey; Type: FK CONSTRAINT; Schema: hpms; Owner: slash
+--
+
+ALTER TABLE ONLY hpms_link_geom
+    ADD CONSTRAINT hpms_link_geom_geo_id_fkey FOREIGN KEY (geo_id) REFERENCES hpms_geom(id) ON DELETE CASCADE;
+
+
+--
+-- Name: hpms_link_geom_hpms_id_fkey; Type: FK CONSTRAINT; Schema: hpms; Owner: slash
+--
+
+ALTER TABLE ONLY hpms_link_geom
+    ADD CONSTRAINT hpms_link_geom_hpms_id_fkey FOREIGN KEY (hpms_id) REFERENCES hpms(id) ON DELETE CASCADE;
 
 
 --

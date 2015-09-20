@@ -1,12 +1,12 @@
 use utf8;
-package CalVAD::HPMS::Schema::Result::HPMS::HPMSGeom;
+package CalVAD::HPMS::Schema::Result::Hpms::HpmsGeom;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CalVAD::HPMS::Schema::Result::HPMS::HPMSGeom
+CalVAD::HPMS::Schema::Result::Hpms::HpmsGeom
 
 =cut
 
@@ -15,11 +15,11 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
-=head1 TABLE: C<hpms_geom>
+=head1 TABLE: C<hpms.hpms_geom>
 
 =cut
 
-__PACKAGE__->table("hpms_geom");
+__PACKAGE__->table("hpms.hpms_geom");
 
 =head1 ACCESSORS
 
@@ -68,20 +68,20 @@ __PACKAGE__->set_primary_key("id");
 
 Type: has_many
 
-Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom>
+Related object: L<CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom>
 
 =cut
 
 __PACKAGE__->has_many(
   "hpms_link_geoms",
-  "CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom",
+  "CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom",
   { "foreign.geo_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-17 18:41:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SiBgMYZVKL2yMx+RaiGY5A
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-18 13:14:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ALBvTj1j8NxRz+V/+6zFFQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

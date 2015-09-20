@@ -1,12 +1,12 @@
 use utf8;
-package CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom;
+package CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom
+CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom
 
 =cut
 
@@ -15,11 +15,11 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
-=head1 TABLE: C<hpms_link_geom>
+=head1 TABLE: C<hpms.hpms_link_geom>
 
 =cut
 
-__PACKAGE__->table("hpms_link_geom");
+__PACKAGE__->table("hpms.hpms_link_geom");
 
 =head1 ACCESSORS
 
@@ -76,13 +76,13 @@ __PACKAGE__->add_unique_constraint(
 
 Type: belongs_to
 
-Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSGeom>
+Related object: L<CalVAD::HPMS::Schema::Result::Hpms::HpmsGeom>
 
 =cut
 
 __PACKAGE__->belongs_to(
   "geo",
-  "CalVAD::HPMS::Schema::Result::HPMS::HPMSGeom",
+  "CalVAD::HPMS::Schema::Result::Hpms::HpmsGeom",
   { id => "geo_id" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
@@ -91,20 +91,20 @@ __PACKAGE__->belongs_to(
 
 Type: belongs_to
 
-Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMS>
+Related object: L<CalVAD::HPMS::Schema::Result::Hpms::HPMS>
 
 =cut
 
 __PACKAGE__->belongs_to(
   "hpm",
-  "CalVAD::HPMS::Schema::Result::HPMS::HPMS",
+  "CalVAD::HPMS::Schema::Result::Hpms::HPMS",
   { id => "hpms_id" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-17 18:41:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/dYCWeuszHnZzr3izurwSw
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-18 13:14:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tIaBlNfqIccaTS19wEnb3w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

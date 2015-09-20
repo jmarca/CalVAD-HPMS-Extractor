@@ -126,14 +126,14 @@ my $db_deploy_args = ["psql",
                       "-p", "$port",
                       "-f", "./sql/create_hpms_table.sql"];
 
-my $vdstype_args = ["psql",
+my $db_populate_args = ["psql",
                     "-d", "$dbname",
                     "-U", "$user",
                     "-h", "$host",
                     "-p", "$port",
                     "-f", "./sql/hpms_test_db.sql"];
 for my $args ( $postgis_args, $postgis_topology_args, $db_deploy_args,
-    $vdstype_args )
+    $db_populate_args )
 {
     my @sysargs = @{$args};
     system(@sysargs) == 0
@@ -167,15 +167,14 @@ isa_ok($connect,'CalVAD::HPMS::Schema','db connection is right class');
 
 # test simple query works
 
-my $rs = $extractor->resultset('HPMS');
+my $rs = $extractor->resultset('Hpms::HPMS');
 isa_ok($rs,'DBIx::Class::ResultSet','got a result set');
 my @all = $rs->all();
-is(@all,93029,'got everything from test database');
+is(@all,4488,'got everything from test database');
 
 
 
 # use the extractor
-$extractor->county(1);
 
 my $max = 20;
 
@@ -195,13 +194,43 @@ is( $max, 10 );
 my $newpage = $rs->page(2);
 my $cursor = $newpage->cursor;
 $max = 20;
-while ($max && (my @vals = $cursor->next)) {
+my @vals;
+while ($max && ( @vals = $cursor->next)) {
     $max--;
     my $val_or_blank = [map { $_ || ''} @vals];
     diag (join q/,/,@{$val_or_blank} );
 }
 is( $max, 10 );
 
+# try to create a geometry
+
+$newpage = $rs->page(3);
+$cursor = $newpage->cursor;
+@vals = $cursor->next;
+my $hpmsid = $vals[0];
+
+my $geometry_wkb = '0102000020E61000000D000000AAF5D95C90C05DC092544BDF10004240F63D8FF664C05DC0AB9C514E0F00424086600B3062C05DC00FB8AE98110042400415FA0560C05DC0F683150214004240EB4DB10F57C05DC0E54C6E6F120042400C94145800C05DC026E0D748120042407E569929ADBF5DC0E0675C381000424014ECBFCE4DBF5DC0469561DC0D004240CA1B60E63BBF5DC037FA980F08004240FF3F4E9830BF5DC0EFC8586DFEFF41407F9B6AD212BF5DC0CF21BAB1EAFF41409262DBFD05BF5DC04AF7297DD7FF4140BA2B60A7FDBE5DC0363A8CEEC5FF4140';
+
+my $geom_result = $extractor->create_geometry($hpmsid,'',$geometry_wkb);
+is($geom_result, 1);
+# double check
+my $hpms_record = $rs->find($hpmsid);
+is($hpms_record->id,$hpmsid);
+my @linked = $hpms_record->search_related('hpms_link_geoms');
+is($linked[0]->geo_id,1);
+
+@vals = $cursor->next;
+$hpmsid = $vals[0];
+
+$geom_result = $extractor->create_geometry($hpmsid,'');
+is($geom_result, -1);
+# double check
+$hpms_record = $rs->find($hpmsid);
+is($hpms_record->id,$hpmsid);
+@linked = $hpms_record->search_related('hpms_link_geoms');
+is($linked[0],undef);
+@linked = $hpms_record->search_related('hpms_failed_geom');
+is($linked[0]->hpms_id,$hpmsid);
 
 
 done_testing;

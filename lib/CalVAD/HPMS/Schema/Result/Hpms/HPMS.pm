@@ -1,12 +1,12 @@
 use utf8;
-package CalVAD::HPMS::Schema::Result::HPMS::HPMS;
+package CalVAD::HPMS::Schema::Result::Hpms::HPMS;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-CalVAD::HPMS::Schema::Result::HPMS::HPMS
+CalVAD::HPMS::Schema::Result::Hpms::HPMS
 
 =cut
 
@@ -15,11 +15,11 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
-=head1 TABLE: C<hpms>
+=head1 TABLE: C<hpms.hpms>
 
 =cut
 
-__PACKAGE__->table("hpms");
+__PACKAGE__->table("hpms.hpms");
 
 =head1 ACCESSORS
 
@@ -417,13 +417,13 @@ __PACKAGE__->set_primary_key("id");
 
 Type: might_have
 
-Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSFailedGeom>
+Related object: L<CalVAD::HPMS::Schema::Result::Hpms::HpmsFailedGeom>
 
 =cut
 
 __PACKAGE__->might_have(
   "hpms_failed_geom",
-  "CalVAD::HPMS::Schema::Result::HPMS::HPMSFailedGeom",
+  "CalVAD::HPMS::Schema::Result::Hpms::HpmsFailedGeom",
   { "foreign.hpms_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -432,20 +432,20 @@ __PACKAGE__->might_have(
 
 Type: has_many
 
-Related object: L<CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom>
+Related object: L<CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom>
 
 =cut
 
 __PACKAGE__->has_many(
   "hpms_link_geoms",
-  "CalVAD::HPMS::Schema::Result::HPMS::HPMSLinkGeom",
+  "CalVAD::HPMS::Schema::Result::Hpms::HpmsLinkGeom",
   { "foreign.hpms_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-17 18:41:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:s9bFpkasHvn4JCMWnctVmQ
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-18 13:14:55
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2zZTaV9qCibHxfNAjWyldQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

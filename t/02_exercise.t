@@ -185,8 +185,8 @@ $extractor->extract_out(sub{
 
     while ($max && (my @vals = $cursor->next)) {
         $max--;
-        my $val_or_blank = [map { $_ || ''} @vals];
-        diag (join q/,/,@{$val_or_blank} );
+        # my $val_or_blank = [map { $_ || ''} @vals];
+        # diag (join q/,/,@{$val_or_blank} );
     }
                         });
 is( $max, 10 );
@@ -197,8 +197,8 @@ $max = 20;
 my @vals;
 while ($max && ( @vals = $cursor->next)) {
     $max--;
-    my $val_or_blank = [map { $_ || ''} @vals];
-    diag (join q/,/,@{$val_or_blank} );
+    # my $val_or_blank = [map { $_ || ''} @vals];
+    # diag (join q/,/,@{$val_or_blank} );
 }
 is( $max, 10 );
 
@@ -213,24 +213,112 @@ my $geometry_wkb = '0102000020E61000000D000000AAF5D95C90C05DC092544BDF10004240F6
 
 my $geom_result = $extractor->create_geometry($hpmsid,'',$geometry_wkb);
 is($geom_result, 1);
+
 # double check
+# should no longer be visible to the $rs result set query
 my $hpms_record = $rs->find($hpmsid);
+is($hpms_record,undef);
+
+my $cleanrs = $extractor->rs_query();
+$hpms_record = $cleanrs->find($hpmsid);
+isnt($hpms_record,undef);
 is($hpms_record->id,$hpmsid);
+
 my @linked = $hpms_record->search_related('hpms_link_geoms');
 is($linked[0]->geo_id,1);
+@linked = $hpms_record->search_related('hpms_failed_geom');
+is($linked[0],undef);
+
 
 @vals = $cursor->next;
 $hpmsid = $vals[0];
 
 $geom_result = $extractor->create_geometry($hpmsid,'');
 is($geom_result, -1);
+
 # double check
 $hpms_record = $rs->find($hpmsid);
+is($hpms_record,undef);
+
+$hpms_record = $cleanrs->find($hpmsid);
+isnt($hpms_record,undef);
+is($hpms_record->id,$hpmsid);
+
 is($hpms_record->id,$hpmsid);
 @linked = $hpms_record->search_related('hpms_link_geoms');
 is($linked[0],undef);
 @linked = $hpms_record->search_related('hpms_failed_geom');
 is($linked[0]->hpms_id,$hpmsid);
+
+
+# now test out guessing names
+$extractor->extract_out(sub{
+    my ($rs) = @_;
+
+    my $cursor = $rs->cursor;
+
+    while (my @vals = $cursor->next) {
+        my $result = $extractor->guess_name_to_from(\@vals);
+        isa_ok($result,'HASH');
+        # my $val_or_blank = [map { $_ || ''} @vals];
+        # diag (join q/,/,@{$val_or_blank} );
+    }
+                        }
+    );
+
+# and some specific test cases
+
+my @case = (0,1,2,3,'000000004U01','CHARTER WAY/MLK JR BLVD',
+            6,7,8,9,10,11,12,13,14,
+            'SJ:STKN:CHARTER WAY/MLK JR BLVD:AIRPORT WAY:MARIPOSA RD');
+my $res = $extractor->guess_name_to_from(\@case);
+
+isnt($res,undef);
+isa_ok($res,'HASH');
+is($res->{'name'},'CHARTER WAY/MLK JR BLVD');
+is($res->{'from'},'AIRPORT WAY');
+is($res->{'to'},'MARIPOSA RD');
+
+
+##################################################
+@case = (0,1,2,3,'TUL_CO_DIAGONAL 126/MAIN at AVENUE 96','DIAGONAL 126/MAIN',
+            6,7,8,9,10,11,12,13,14,
+            'AVENUE 96 to ROAD 124/PARK ST');
+$res = $extractor->guess_name_to_from(\@case);
+
+isnt($res,undef);
+isa_ok($res,'HASH');
+is($res->{'name'},'DIAGONAL 126/MAIN');
+is($res->{'from'},'AVENUE 96');
+is($res->{'to'},'ROAD 124/PARK ST');
+
+##################################################
+@case = (0,1,2,3,'TUL_FMVL_FRANQUETTE AVE',undef,
+            6,7,8,9,10,11,12,13,14,
+            'WALNUT AVE to MARILYN ST');
+$res = $extractor->guess_name_to_from(\@case);
+
+isnt($res,undef);
+isa_ok($res,'HASH');
+is($res->{'name'},'TUL_FMVL_FRANQUETTE AVE');
+is($res->{'from'},'WALNUT AVE');
+is($res->{'to'},'MARILYN ST');
+
+
+##################################################
+@case = (0,1,2,3,'TUL_USFS_SHERMAN PASS RD','SHERMAN PASS RD',
+            6,7,8,9,10,11,12,13,14,
+            'RD TO BIG MEADOW CP to PINON VILLAGE RD');
+
+
+$res = $extractor->guess_name_to_from(\@case);
+
+isnt($res,undef);
+isa_ok($res,'HASH');
+is($res->{'name'},'SHERMAN PASS RD');
+is($res->{'from'},'RD TO BIG MEADOW CP');
+is($res->{'to'},'PINON VILLAGE RD');
+
 
 
 done_testing;

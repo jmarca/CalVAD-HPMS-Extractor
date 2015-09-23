@@ -1,6 +1,5 @@
-# ABSTRACT: turns baubles into trinkets
-use strict;
-use warnings;
+# ABSTRACT: access and process HPMS records, primarily for geocoding
+use Modern::Perl '2014';
 use Moops;
 
 package CalVAD::HPMS;
@@ -25,11 +24,13 @@ class Extractor using Moose : ro {
         },
         );
 
+
     has 'shwy' => (is => 'rw', isa => 'Bool', 'default'=>0);
     has 'retry' => (is => 'rw', isa => 'Bool', 'default'=>0);
 
 
-        my $param = 'psql';
+    my $param = 'psql';
+
     method _build__connection_psql {
 
         # process my passed options for psql attributes
@@ -126,15 +127,11 @@ class Extractor using Moose : ro {
     method extract_out  (CodeRef $callback)  {
         my $data_rs    = $self->rs_query();
         my $conditions = {
-            #'hpms_link_geoms'   => undef,
-            # 'hpms_failed_geom' => undef,
-            #'locality'         => { '!=', 'CO' },
-
+            'hpms_link_geoms'   => undef,
+            'hpms_failed_geom' => undef,
+            'aadt' => { '!=',undef},
+            'aadt' => { '>',0 },
             'alternative_route_name_txt' => { '!~*', 'GROUP' },
-
-            # 'from_name' => {'!=', undef},
-            # 'to_name' => {'!=', undef},
-
         };
         my $options = {
             rows     => 10,           # number of results per page
@@ -149,16 +146,9 @@ class Extractor using Moose : ro {
         # not being used at the moment
         if ( $self->shwy ) {
             $conditions->{'alternative_route_name_txt'} = {'~*','shwy'};
-            #$options->{'+select'}='max_len.len';
-            #$options->{'+as'}='max_length';
-            #$options->{'join'} = 'max_len';
         }
         if ( $self->shwy && $self->osmref ) {
             $conditions->{'me.route_number'} = {'!=',''};
-            # delete $conditions->{'locality'};
-            # $options->{'+select'}='max_len.len';
-            # $options->{'+as'}='max_length';
-            # $options->{'join'} = 'max_len';
         }
         # carp Dumper $conditions;
         # carp Dumper $options;
@@ -171,7 +161,66 @@ class Extractor using Moose : ro {
 
     }
 
+    method guess_name_to_from( ArrayRef :$record ){
+        # for now, just best guess
+
+        # later get more tricky, or deploy that web UI I've been
+        # thinking about
+
+        # columns at the moment are:
+        #
+        # id year_record route_number route_qualifier route_id
+        # alternative_route_name_txt urban_code_cmt county_code
+        # county_code_cmt begin_point end_point section_length
+        # f_system_cmt nhs_cmt aadt aadt_cmt
+
+        my $name = $record->[5] || $record->[4];
+
+        # source the from to stuff from the aadt cmt
+
+        my $aadtcmt = $record->[15];
+
+        # first attempt, split on 'to'
+        my @details = split q{/},$aadtcmt;
+        if(scalar @details )
+    }
 
 }
 
 1;
+
+=method _build__connection_psql
+
+    This method is required by DB::Connection
+
+=method rs_query
+
+    This method creates an initial DBIx::Class result set, fetch
+    hpms_columns and linking hpms_link_geoms and hpms_failed_geom.
+
+=method create_geometry
+
+    This method is passed an hpmsid, a direction (which can be blank
+    string) and a geom as wkb.  If the geom variable is not null, then
+    the a new geometry is created and linked to the given hpms id.  If
+    the geometry is null, then an entry is created in the
+    hpms_failed_geom table.
+
+=method extract_out
+
+    This method creates a DBIx::Class result set, and passes it to the
+    given callback.  The callback can then further modify the result
+    set if desired, or else just get the results from the db, and do
+    something with them.
+
+    In the context of geocoding, the callback would individually
+    geocode each row fetched from the database.
+
+=method guess_name_to_from
+
+    This method will look at a record queried from the database (using
+    the standard columns) and will try to guess the name of the
+    segment, the road identifying the start of the segment ('from')
+    and the road identifying the end of the segment ('to').
+    Unfortunately, the HPMS data is wildly inconsistent here, so we
+    just do the best we can.

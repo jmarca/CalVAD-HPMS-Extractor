@@ -9,7 +9,14 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-CREATE schema hpms;
+--
+-- Name: hpms; Type: SCHEMA; Schema: -; Owner: slash
+--
+
+CREATE SCHEMA hpms;
+
+
+ALTER SCHEMA hpms OWNER TO slash;
 
 SET search_path = hpms, pg_catalog;
 
@@ -18,7 +25,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: hpms; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms; Type: TABLE; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 CREATE TABLE hpms (
@@ -80,7 +87,7 @@ CREATE TABLE hpms (
 ALTER TABLE hpms OWNER TO slash;
 
 --
--- Name: hpms_failed_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_failed_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 CREATE TABLE hpms_failed_geom (
@@ -91,7 +98,7 @@ CREATE TABLE hpms_failed_geom (
 ALTER TABLE hpms_failed_geom OWNER TO slash;
 
 --
--- Name: hpms_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 CREATE TABLE hpms_geom (
@@ -145,7 +152,7 @@ ALTER SEQUENCE hpms_id_seq OWNED BY hpms.id;
 
 
 --
--- Name: hpms_link_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_link_geom; Type: TABLE; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 CREATE TABLE hpms_link_geom (
@@ -156,6 +163,24 @@ CREATE TABLE hpms_link_geom (
 
 
 ALTER TABLE hpms_link_geom OWNER TO slash;
+
+--
+-- Name: hpms_match_details; Type: TABLE; Schema: hpms; Owner: slash; Tablespace: 
+--
+
+CREATE TABLE hpms_match_details (
+    hpms_id integer NOT NULL,
+    direction text NOT NULL,
+    intended_name character varying(256),
+    intended_from character varying(256),
+    intended_to character varying(256),
+    matched_name character varying(256),
+    matched_from character varying(256),
+    matched_to character varying(256)
+);
+
+
+ALTER TABLE hpms_match_details OWNER TO slash;
 
 --
 -- Name: id; Type: DEFAULT; Schema: hpms; Owner: slash
@@ -172,7 +197,7 @@ ALTER TABLE ONLY hpms_geom ALTER COLUMN id SET DEFAULT nextval('hpms_geom_id_seq
 
 
 --
--- Name: hpms_failed_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_failed_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 ALTER TABLE ONLY hpms_failed_geom
@@ -180,7 +205,7 @@ ALTER TABLE ONLY hpms_failed_geom
 
 
 --
--- Name: hpms_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_geom_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 ALTER TABLE ONLY hpms_geom
@@ -188,7 +213,7 @@ ALTER TABLE ONLY hpms_geom
 
 
 --
--- Name: hpms_link_geom_hpms_id_direction_key; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_link_geom_hpms_id_direction_key; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 ALTER TABLE ONLY hpms_link_geom
@@ -196,7 +221,15 @@ ALTER TABLE ONLY hpms_link_geom
 
 
 --
--- Name: hpms_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace:
+-- Name: hpms_match_details_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace: 
+--
+
+ALTER TABLE ONLY hpms_match_details
+    ADD CONSTRAINT hpms_match_details_pkey PRIMARY KEY (hpms_id, direction);
+
+
+--
+-- Name: hpms_pkey; Type: CONSTRAINT; Schema: hpms; Owner: slash; Tablespace: 
 --
 
 ALTER TABLE ONLY hpms
@@ -228,5 +261,14 @@ ALTER TABLE ONLY hpms_link_geom
 
 
 --
+-- Name: hpms_match_details_hpms_id_fkey; Type: FK CONSTRAINT; Schema: hpms; Owner: slash
+--
+
+ALTER TABLE ONLY hpms_match_details
+    ADD CONSTRAINT hpms_match_details_hpms_id_fkey FOREIGN KEY (hpms_id) REFERENCES hpms(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
+

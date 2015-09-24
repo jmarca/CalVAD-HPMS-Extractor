@@ -4546,6 +4546,14 @@ COPY hpms_link_geom (geo_id, hpms_id, direction) FROM stdin;
 
 
 --
+-- Data for Name: hpms_match_details; Type: TABLE DATA; Schema: hpms; Owner: slash
+--
+
+COPY hpms_match_details (hpms_id, direction, intended_name, intended_from, intended_to, matched_name, matched_from, matched_to) FROM stdin;
+\.
+
+
+--
 -- PostgreSQL database dump complete
 --
 

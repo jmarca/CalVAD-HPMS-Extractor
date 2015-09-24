@@ -321,6 +321,42 @@ is($res->{'to'},'PINON VILLAGE RD');
 
 
 
+
+##################################################
+# now test saving the geocode results
+
+@vals = $cursor->next;
+$hpmsid = $vals[0];
+
+$res = $extractor->save_geocode_results(
+    'hpmsid'=>$hpmsid,
+    'direction'=>'',
+    'intended_name'=>'SHERMAN PASS RD',
+    'intended_from'=>'RD TO BIG MEADOW CP',
+    'intended_to'  =>'PINON VILLAGE RD',
+    'matched_name' =>'',
+    'matched_from' =>undef,
+    'matched_to'   =>undef
+    );
+
+@vals = $cursor->next;
+$hpmsid = $vals[0];
+
+$res = $extractor->save_geocode_results(
+    'hpmsid'=>$hpmsid,
+    'direction'=>'',
+    'intended_name'=>'AVENUE 116',
+    'intended_from'=>'DIAGONAL 254',
+    'intended_to'  =>'ROAD 264',
+    'matched_name' =>'Avenue 116',
+    'matched_from' =>'Road 264',
+    'matched_to'   =>'Diagonal 27',
+    );
+
+my @records = $extractor->resultset('Hpms::HpmsMatchDetail')->all();
+
+is(@records,2,'got two match detail records');
+
 done_testing;
 
 

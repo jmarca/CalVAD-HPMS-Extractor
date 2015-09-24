@@ -124,6 +124,38 @@ class Extractor using Moose : ro {
         return $result;
     }
 
+    method save_geocode_results (Num :$hpmsid,
+                                 Str :$direction,
+                                 Str :$intended_name,
+                                 Maybe[Str] :$intended_from?,
+                                 Maybe[Str] :$intended_to?,
+                                 Str :$matched_name,
+                                 Maybe[Str] :$matched_from?,
+                                 Maybe[Str] :$matched_to?, ){
+        my $result = 0;
+        my $test_eval;
+        my $new_join;
+        $test_eval = eval {
+            $new_join = $self->resultset('Hpms::HpmsMatchDetail')->create(
+                    {
+                        'hpms_id'   => $hpmsid,
+                        'direction' => $direction,
+                        'intended_name' => $intended_name,
+                        'intended_from' => $intended_from,
+                        'intended_to' => $intended_to,
+                        'matched_name' => $matched_name,
+                        'matched_from' => $matched_from,
+                        'matched_to' => $matched_to,
+                    }
+                );
+        };
+        if ($EVAL_ERROR) {    # find or create failed
+            carp "can't join geocode results $EVAL_ERROR";
+            croak;
+        }
+        return $new_join;
+    }
+
     method extract_out  (CodeRef $callback)  {
         my $data_rs    = $self->rs_query();
         my $conditions = {
@@ -289,6 +321,16 @@ class Extractor using Moose : ro {
 
     In the context of geocoding, the callback would individually
     geocode each row fetched from the database.
+
+=method save_geocode_results
+
+    This method will save the geocode results.  The geocode process
+    (in CalVAD::HPMS::Geocode at the moment) does its best to match
+    the road name, the from name, and the to name.  It is sometimes
+    the case that the matching is really bad.  This table exists so
+    that I can review any problems after the fact.  Pass in the
+    intended road name, from name, and to name, as well as the matched
+    road name, matched from name, and matched to name.
 
 =method guess_name_to_from
 

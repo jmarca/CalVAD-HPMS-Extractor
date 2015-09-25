@@ -27,6 +27,7 @@ class Extractor using Moose : ro {
 
     has 'shwy' => (is => 'rw', isa => 'Bool', 'default'=>0);
     has 'retry' => (is => 'rw', isa => 'Bool', 'default'=>0);
+    has 'rows' => (is => 'rw', isa => 'Num', 'default'=>10);
 
 
     my $param = 'psql';
@@ -371,3 +372,7 @@ class Extractor using Moose : ro {
     hpms_failed_geom table.  If set to true, then this condition is
     removed, which means that previously failed-to-match HPMS records
     will be run again.
+
+=attr rows
+
+   The number of rows to get per page of results.  Defaults to 10.

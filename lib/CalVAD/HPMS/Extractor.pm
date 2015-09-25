@@ -167,7 +167,7 @@ class Extractor using Moose : ro {
             'alternative_route_name_txt' => { '!~*', 'GROUP' },
         };
         my $options = {
-            rows     => 10,           # number of results per page
+            rows     => $self->rows,      # number of results per page
             order_by => 'random()',
         };
         if($self->retry && $conditions->{'hpms_failed_geom'} ){

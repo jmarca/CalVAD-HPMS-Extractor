@@ -202,6 +202,23 @@ while ($max && ( @vals = $cursor->next)) {
 }
 is( $max, 10 );
 
+
+# see if we can't get 100
+$extractor->rows(100);
+$extractor->extract_out(sub{
+    ($rs) = @_;
+
+    $cursor = $rs->cursor;
+    $max = 110;
+    while ($max && (my @vals = $cursor->next)) {
+        $max--;
+        # my $val_or_blank = [map { $_ || ''} @vals];
+        # diag (join q/,/,@{$val_or_blank} );
+    }
+    is( $max, 10 );
+  });
+
+
 # try to create a geometry
 
 $newpage = $rs->page(3);

@@ -130,7 +130,8 @@ class Extractor using Moose : ro {
                                  Str :$intended_name,
                                  Maybe[Str] :$intended_from?,
                                  Maybe[Str] :$intended_to?,
-                                 Str :$matched_name,
+                                 Str :$matched_name_from?,
+                                 Str :$matched_name_to?,
                                  Maybe[Str] :$matched_from?,
                                  Maybe[Str] :$matched_to?, ){
         my $result = 0;
@@ -144,7 +145,8 @@ class Extractor using Moose : ro {
                         'intended_name' => $intended_name,
                         'intended_from' => $intended_from,
                         'intended_to' => $intended_to,
-                        'matched_name' => $matched_name,
+                        'matched_name_from' => $matched_name_from,
+                        'matched_name_to' => $matched_name_to,
                         'matched_from' => $matched_from,
                         'matched_to' => $matched_to,
                     }

@@ -5,6 +5,7 @@
      "user":"slash"
  },
  "loader_options":{
+     "skip_load_external":true,
      "dump_directory": "./lib",
      "db_schema": ["hpms"],
      "debug":false,

@@ -351,7 +351,8 @@ $res = $extractor->save_geocode_results(
     'intended_name'=>'SHERMAN PASS RD',
     'intended_from'=>'RD TO BIG MEADOW CP',
     'intended_to'  =>'PINON VILLAGE RD',
-    'matched_name' =>'',
+    'matched_name_to' => undef,
+    'matched_name_from' => undef,
     'matched_from' =>undef,
     'matched_to'   =>undef
     );
@@ -365,7 +366,8 @@ $res = $extractor->save_geocode_results(
     'intended_name'=>'AVENUE 116',
     'intended_from'=>'DIAGONAL 254',
     'intended_to'  =>'ROAD 264',
-    'matched_name' =>'Avenue 116',
+    'matched_name_from' =>'Avenue 116',
+    'matched_name_to' =>'Avenue 116',
     'matched_from' =>'Road 264',
     'matched_to'   =>'Diagonal 27',
     );
